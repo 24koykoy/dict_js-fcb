@@ -7,6 +7,10 @@ let score = 0;
 let rows = 4;
 let columns = 4;
 
+let is2048Exist = false;
+let is4096Exist = false;
+let is8192Exist = false;
+
 // Create a function that will initialize the gameboard:
 function setGame(){
 	board = [
@@ -101,6 +105,33 @@ function handleSlide(event){
 			setTwo();
 		}
 	}
+
+	document.getElementById("score").innerText = score;
+
+	setTimeout(()=> {
+		if(hasLost()){
+			alert("Game Over! You have lost the game. Game will restart")
+			restartGame();
+			alert("Click any arrow ket to restart");
+		}else{
+			checkWin();
+		}
+	}, 100)
+
+}
+
+function restartGame(){
+	board = [
+		[0, 0, 0, 0],
+		[0, 0, 0, 0],
+		[0, 0, 0, 0],
+		[0, 0, 0, 0]
+	];
+
+	score = 0;
+
+	
+	setTwo();
 }
 
 document.addEventListener("keydown", handleSlide);
@@ -108,7 +139,8 @@ document.addEventListener("keydown", handleSlide);
 function slideLeft(){
 	for(let r = 0; r < rows; r++){
 		let row = board[r];
-		let originalRow = row.slice(); // Make a copy of the original row
+
+		let originalRow = row.slice();
 
 		row = slide(row);
 		board[r] = row;
@@ -116,14 +148,19 @@ function slideLeft(){
 		for(let c = 0; c < columns; c++){
 			let tile = document.getElementById(r + "-" + c);
 			let num = board[r][c];
-			if(originalRow[c] !== num && num !==0) { // Update only if the tile has changed
-				tile.style.animation = "slide-from-right 0.3s ease"; // Add slide animation
-				setTimeout(() => {
-					tile.style.animation = ""; // Remove animation after it completes
+
+			if(originalRow[c] != num && num !== 0){
+				tile.style.animation = "slide-from-right 0.3s";
+
+				setTimeout(()=> {
+					tile.style.animation = "";
 				}, 300);
+
+			}
+
+
 			updateTile(tile, num);
 		}
-	}
 
 	}
 }
@@ -132,7 +169,8 @@ function slideRight(){
 	for(let r = 0; r < rows; r++){
 		//[2, 0, 2, 0]
 		let row = board[r];
-		let originalRow = row.slice(); // Make a copy of the original row
+
+		let originalRow = row.slice();
 
 		//[0, 2, 0, 2]
 		row.reverse();
@@ -149,13 +187,15 @@ function slideRight(){
 			let tile = document.getElementById(r + "-" + c);
 			let num = board[r][c];
 
-			if(originalRow[c] !== num && num !==0) { // Update only if the tile has changed
-				tile.style.animation = "slide-from-left 0.3s ease"; // Add slide animation
-				setTimeout(() => {
-					tile.style.animation = ""; // Remove animation after it completes
-				}, 300);
+			if(originalRow[c] !== num && num !== 0){
+				tile.style.animation = "slide-from-left 0.3s";
+
+				setTimeout(()=>{
+					tile.style.animation = "";
+				}, 300)
+			}
+
 			updateTile(tile, num);
-		}
 		}
 
 
@@ -169,7 +209,8 @@ function slideUp(){
 		// first iteration:
 		// [board[0][0], board[1][0], board[2][0], board[3][0]] = 
 
-		let originalCol = col.slice(); // Make a copy of the original column
+		let originalCol = col.slice();
+
 		// [2, 8, 0, 0]
 		col = slide(col);
 
@@ -178,12 +219,15 @@ function slideUp(){
 
 			let tile = document.getElementById(r + "-" + c);
 			let num = board[r][c];
-			if(originalCol[r] !== num && num !==0) { // Update only if the tile has changed
-				tile.style.animation = "slide-from-bottom 0.3s ease";
+
+			if(originalCol[r] !== num && num !== 0 ){
+				tile.style.animation = "slide-from-bottom 0.3s";
+
 				setTimeout(() => {
-					tile.style.animation = ""; // Remove animation after it completes
+					tile.style.animation = "";
 				}, 300);
 			}
+
 			updateTile(tile, num)
 		}
 	}
@@ -193,7 +237,8 @@ function slideDown(){
 	for(let c = 0; c <columns; c++){
 		let col = [board[0][c], board[1][c], board[2][c], board[3][c]];
 
-		let originalCol = col.slice(); // Make a copy of the original column
+		let originalCol = col.slice();
+
 		col.reverse();
 		col = slide(col);
 		col.reverse();
@@ -203,12 +248,17 @@ function slideDown(){
 
 			let tile = document.getElementById(r + "-" + c);
 			let num = board[r][c];
-			if(originalCol[r] !== num && num !==0) { // Update only if the tile has changed
-				tile.style.animation = "slide-from-top 0.3s ease";
+
+			if(originalCol[r] !== num && num !== 0){
+				tile.style.animation = "slide-from-top 0.3s";
+
 				setTimeout(() => {
-					tile.style.animation = ""; // Remove animation after it completes
+					tile.style.animation = "";
 				}, 300);
 			}
+
+
+
 			updateTile(tile, num)
 		}
 
@@ -306,67 +356,102 @@ function setTwo(){
 
 //function that will check if we can still do left movement:
 function canMoveLeft(){
-    for(let r = 0; r < rows; r++){
-        for(let c = 1; c < columns; c++){ // start at 1
-            if(board[r][c] !== 0){
-                if(board[r][c - 1] === 0 || board[r][c - 1] === board[r][c]){
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
+	for(let r = 0; r < rows; r++){
+		for(let c = 0; c < columns; c++){
+			if(board[r][c] !== 0){
+				if(board[r][c - 1] === 0 || board[r][c-1] === board[r][c]){
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 function canMoveRight(){
-    for(let r = 0; r < rows; r++){
-        for(let c = 0; c < columns - 1; c++){ // stop at 2
-            if(board[r][c] !== 0){
-                if(board[r][c + 1] === 0 || board[r][c + 1] === board[r][c]){
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-
-function canMoveUp(){
-    for(let r = 1; r < rows; r++){ // start at 1
-        for(let c = 0; c < columns; c++){
-            if(board[r][c] !== 0){
-                if(board[r - 1][c] === 0 || board[r - 1][c] === board[r][c]){
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-function canMoveDown(){
-    for(let r = 0; r < rows - 1; r++){ // stop at rows-2
-        for(let c = 0; c < columns; c++){
-            if(board[r][c] !== 0){
-                if(board[r + 1][c] === 0 || board[r + 1][c] === board[r][c]){
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-function checkWin(){
-	for (let r = 0; r < rows; r++){
+	for(let r = 0; r < rows; r++){
 		for(let c = 0; c < columns; c++){
-			if(board[r][c] == 2048){
-				return true;
+			if(board[r][c] !== 0){
+				if(board[r][c+1] === 0 || board[r][c+1] === board[r][c]){
+					return true;
+				}
 			}
 		}
-	}		
+	}
+
+	return false;
 }
 
-function scoreCount(){
-	document.getElementById("score").innerText = score;
+
+/*...*/
+
+// Check if there are available merging moves in the upward direction
+function canMoveUp() {
+    // This line starts a loop that goes through each column in the game grid. A column is like a vertical line in the grid, and this loop checks one column at a time.
+    for (let c = 0; c < columns; c++) {
+        // This loop starts from the second row because moving upward means checking the number's interaction with the one above it.
+        for (let r = 1; r < rows; r++) {
+            console.log(`${c} - ${r}`);
+            if (board[r][c] !== 0) {
+                // Inside the loop, this line checks two things:
+                    // It checks if the position above the current tile is empty (0).
+                    // It also checks if the number above is the same as the current number.
+                if (board[r - 1][c] === 0 || board[r - 1][c] === board[r][c]) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+function canMoveDown(){
+	for(let r = 0 ; r < rows ; r++){
+		for (let c = 0; c < columns; c++){
+			if(board[r][c]!==0){
+				if(board[r+1][c] === 0 || board [r+1][c] === board[r][c]){
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+// that will check if the user wins in the game
+function checkWin(){
+	for(let r = 0; r <rows; r++){
+		for(let c = 0; c < columns; c++){
+			if(board[r][c] == 2048 && is2048Exist == false){
+				alert('You win! You got the 2048 tile!');
+				is2048Exist = true;
+			}else if(board[r][c] == 4096 && is4096Exist == false){
+				alert("You are unstoppable at 4096! You are fantastically unsto!");
+				is4096Exist = true;
+			} else if (board[r][c] == 8192 && is8192Exist == false){
+				alert("Victory! You have reached 8192! You are incredibly awesome");
+				is8192Exists = true;
+			}
+		}
+	}
+}
+
+function hasLost(){
+	for( let r = 0; r < rows ; r++){
+		for( let c = 0; c < columns; c++){
+			if(board[r][c] === 0){
+				return false;
+			}
+
+			// check all the adjacent cells per element
+			if( r > 0 && board[r-1][c] === board [r][c] || r < rows - 1 && board[r+1][c] === board[r][c] || c > 0 && board [r][c-1] === board[r][c] || c < columns - 1 && board[r][c+1] === board[r][c]){
+				return false;
+			}
+		}
+	}
+
+	//no possible movement
+	return true;
+
 }
